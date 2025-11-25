@@ -1,4 +1,3 @@
-// import { PrismaClient, User } from '@prisma/client'
 import PrismaClient, { User } from '../connect'
 import { RequestQuery, UsersResponse } from '../dto/users'
 const { prisma } = new PrismaClient()
