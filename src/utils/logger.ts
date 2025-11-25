@@ -10,8 +10,7 @@ const logger = createLogger({
     format.json(),
     format.printf(
       (info) =>
-        `${dayjs(info.timestamp).format('YYYY-MM-DD HH:mm:ss')} [${
-          info.label
+        `${dayjs(info?.timestamp as string | number | Date | null | undefined).format('YYYY-MM-DD HH:mm:ss')} [${info.label
         }] ${info.level}: ${info.message}`
     )
   ),
@@ -22,8 +21,7 @@ const logger = createLogger({
         format.colorize(),
         format.printf(
           (info) =>
-            `${dayjs(info.timestamp).format('YYYY-MM-DD HH:mm:ss')} [${
-              info.label
+            `${dayjs(info.timestamp as string | number | Date | null | undefined).format('YYYY-MM-DD HH:mm:ss')} [${info.label
             }] ${info.level}: ${info.message}`
         )
       )

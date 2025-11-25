@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import UsersService from '../services/users.service'
+import { IUsersService } from '../services/users.service'
 
 import {
   Login,
@@ -15,7 +15,7 @@ import JSONResponse from '../utils/response'
 import { TokenData, TokenDt } from '../dto/jwt'
 
 class UsersController {
-  public usersService = new UsersService()
+  constructor(private readonly usersService: IUsersService) { }
 
   public register = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -76,7 +76,7 @@ class UsersController {
 
   private readonly requestToken = (req: Request): TokenDt => {
     const reqToken = req as TokenData
-    return reqToken.TokenDt
+    return reqToken?.user as TokenDt
   }
 
   public deleteUser = async (req: Request, res: Response): Promise<void> => {

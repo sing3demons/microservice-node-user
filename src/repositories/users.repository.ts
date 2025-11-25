@@ -3,7 +3,16 @@ import PrismaClient, { User } from '../connect'
 import { RequestQuery, UsersResponse } from '../dto/users'
 const { prisma } = new PrismaClient()
 
-class UsersRepository {
+export interface IUsersRepository {
+  findAll: (query: RequestQuery) => Promise<UsersResponse | undefined>
+  findById: (id: string) => Promise<User | undefined>
+  findUserByEmail: (email: string) => Promise<User | undefined>
+  createUser: (data: User) => Promise<User | undefined>
+  updateUser: (id: string, data: User) => Promise<User | undefined>
+  deleteUser: (id: string) => Promise<User | undefined>
+}
+
+class UsersRepository implements IUsersRepository {
   private readonly users = prisma.user
 
   private findAllAndCount = async ({
@@ -51,9 +60,9 @@ class UsersRepository {
     }
   }
 
-  public findById = async (id: string) => {
+  public findById = async (id: string): Promise<User | undefined> => {
     try {
-      return await this.users.findUnique({ where: { id } })
+      return await this.users.findUnique({ where: { id } }) as User | undefined
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message)
@@ -61,9 +70,9 @@ class UsersRepository {
     }
   }
 
-  public findUserByEmail = async (email: string) => {
+  public findUserByEmail = async (email: string): Promise<User | undefined> => {
     try {
-      return await this.users.findUnique({ where: { email } })
+      return await this.users.findUnique({ where: { email } }) as User | undefined
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message)

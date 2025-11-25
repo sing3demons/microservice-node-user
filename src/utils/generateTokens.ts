@@ -9,10 +9,10 @@ export default class JsonWebToken {
   }
   public signToken(payload: any, expire?: string): string {
 
-    const token = jwt.sign(payload, this.privateKey, {
+    const token: string = jwt.sign(payload, this.privateKey as jwt.Secret, {
       algorithm: 'RS256',
       expiresIn: expire ? expire : '1h'
-    })
+    } as jwt.SignOptions)
     return token
   }
 

@@ -30,12 +30,16 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ###
+# @name getProfile
 GET {{url}}/users/profile HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ###
-DELETE  {{url}}/users/64bd2ce6495e23f11400628f HTTP/1.1
+@profileId = {{getProfile.response.body.data.id}}
+
+###
+DELETE  {{url}}/users/{{profileId}} HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

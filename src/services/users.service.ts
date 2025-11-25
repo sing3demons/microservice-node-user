@@ -1,18 +1,28 @@
 import { RequestQuery, User, UsersResponse } from '../dto/users'
-import UsersRepository from '../repositories/users.repository'
+import UsersRepository, { IUsersRepository } from '../repositories/users.repository'
 import { compare, genSalt, hash } from 'bcrypt'
 import fs from 'fs'
 import { join } from 'path'
 import JWTTokens from '../utils/jwt'
 
-class UsersService {
-  private users = new UsersRepository()
+export interface IUsersService {
+  getUsers: (query: RequestQuery) => Promise<UsersResponse>
+  getUserById: (id: string) => Promise<User | null>
+  createUser: (data: User) => Promise<User | undefined>
+  updateUser: (id: string, data: User) => Promise<User>
+  deleteUser: (id: string) => Promise<User>
+  register: (u: User) => Promise<User>
+  login: (email: string, password: string) => Promise<any>
+  updateProfile: (id: string, data: User) => Promise<User>
+}
+class UsersService implements IUsersService {
+  constructor(private readonly usersRepository: IUsersRepository) {}
 
   public getUsers = async (query: RequestQuery): Promise<UsersResponse> => {
     try {
       const { size, skip } = query
 
-      const data = await this.users.findAll({
+      const data = await this.usersRepository.findAll({
         skip: Number(skip) | 0,
         size: Number(size) | 10
       })
@@ -32,7 +42,7 @@ class UsersService {
 
   public getUserById = async (id: string): Promise<User | null> => {
     try {
-      const user = await this.users.findById(id)
+      const user = await this.usersRepository.findById(id)
       if (!user) {
         return null
       }
@@ -47,7 +57,7 @@ class UsersService {
 
   public createUser = async (data: User): Promise<User | undefined> => {
     try {
-      const user = await this.users.createUser(data)
+      const user = await this.usersRepository.createUser(data)
       return user
     } catch (e) {
       if (e instanceof Error) {
@@ -58,7 +68,7 @@ class UsersService {
 
   public updateUser = async (id: string, data: User): Promise<User> => {
     try {
-      const u = await this.users.updateUser(id, data)
+      const u = await this.usersRepository.updateUser(id, data)
       if (!u) {
         throw new Error('Error updating user')
       }
@@ -73,7 +83,7 @@ class UsersService {
 
   public deleteUser = async (id: string): Promise<User> => {
     try {
-      const user = await this.users.deleteUser(id)
+      const user = await this.usersRepository.deleteUser(id)
       if (!user) {
         throw new Error('Error deleting user')
       }
@@ -104,13 +114,13 @@ class UsersService {
 
   public register = async (u: User): Promise<User> => {
     try {
-      const user = await this.users.findUserByEmail(u.email)
+      const user = await this.usersRepository.findUserByEmail(u.email)
       if (user) {
         throw new Error('User already exists')
       }
 
       u.password = await this.hashPassword(u.password)
-      const newUser = await this.users.createUser(u)
+      const newUser = await this.usersRepository.createUser(u)
       if (!newUser) {
         throw new Error('Error creating user')
       }
@@ -126,7 +136,7 @@ class UsersService {
 
   public login = async (email: string, password: string) => {
     try {
-      const user = await this.users.findUserByEmail(email)
+      const user = await this.usersRepository.findUserByEmail(email)
       if (!user) {
         throw new Error('not found')
       }
@@ -148,7 +158,7 @@ class UsersService {
 
   public updateProfile = async (id: string, data: User) => {
     try {
-      const user = await this.users.findById(id)
+      const user = await this.usersRepository.findById(id)
       if (!user) {
         throw new Error('User not found')
       }
@@ -157,7 +167,7 @@ class UsersService {
         await this.deleteProfile(user.profile)
       }
 
-      const u = await this.users.updateUser(id, data)
+      const u = await this.usersRepository.updateUser(id, data)
 
       if (!u) {
         throw new Error('Error updating user')

@@ -3,9 +3,13 @@ import UsersController from './controller/users.controller'
 
 import { upload } from './utils/upload'
 import JWTTokens from './utils/jwt'
+import UsersService from './services/users.service'
+import UsersRepository from './repositories/users.repository'
 
 const router = Router({ caseSensitive: true })
-const usersController = new UsersController()
+const usersRepository = new UsersRepository()
+const usersService = new UsersService(usersRepository)
+const usersController = new UsersController(usersService)
 const verifyToken = JWTTokens.verifyToken
 
 router.post('/auth/register', usersController.register)
